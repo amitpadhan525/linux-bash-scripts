@@ -79,11 +79,15 @@ echo "|| NETWORK INFORMATION ||"
 echo "-------------------------"
 
 # Network
-echo "Local IP (Primary): $(hostname -I | awk '{print $1}')"
+interface=$(ip route 2>/dev/null | grep default | awk '{print $5}' | head -n 1)
+main_ip=""
+if [ -n "$interface" ]; then
+    main_ip=$(ip -4 addr show "$interface" 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
+fi
+echo "Local IP (Primary): ${main_ip:-N/A}"
 echo "Gateway: $(ip route 2>/dev/null | grep default | awk '{print $3}' | head -n 1)"
 
 # Mac address
-interface=$(ip route 2>/dev/null | grep default | awk '{print $5}' | head -n 1)
 if [ -n "$interface" ]; then
     mac=$(ip link show "$interface" | grep link/ether | awk '{print $2}')
     if [ -n "$mac" ]; then

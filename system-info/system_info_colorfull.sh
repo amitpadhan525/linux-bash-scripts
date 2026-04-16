@@ -28,7 +28,10 @@ if [ -z "$gpu_info" ]; then
 fi
 
 def_route=$(ip route 2>/dev/null | grep default | awk '{print $5}' | head -n 1)
-main_ip=$(hostname -I | awk '{print $1}')
+main_ip=""
+if [ -n "$def_route" ]; then
+    main_ip=$(ip -4 addr show "$def_route" 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
+fi
 gateway_ip=$(ip route 2>/dev/null | grep default | awk '{print $3}' | head -n 1)
 
 echo -e "\n${BOLD}${MAGENTA}✦ ✨ SYSTEM OVERVIEW ✨ ✦${RESET}"
