@@ -1,105 +1,93 @@
 #!/bin/bash
 
-# ===============================
-# BASIC SYSTEM INFORMATION
-# ===============================
 echo "|| BASIC SYSTEM INFORMATION ||"
+echo "------------------------------"
 
-# Hostname (static system name)
-echo "Hostname: $(hostnamectl --static)"
+# Hostname
+echo "Hostname: $(hostnamectl --static 2>/dev/null || hostname)"
 
-# Current logged-in user
+# Username
 echo "Username: $(whoami)"
 
-# Current shell name (bash, zsh, etc.)
+# Shell and Terminal
 echo "Shell: $(basename "$SHELL")"
+echo "Terminal: $(echo $TERM)"
 
-# OS name (from /etc/os-release)
-source /etc/os-release
-echo "OS name: $NAME"
+# OS Details
+if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    echo "OS Name: $NAME"
+    echo "OS Version: $VERSION"
+fi
 
-# Kernel version
+# Kernel & Architecture
 echo "Kernel version: $(uname -r)"
-
-# System architecture (x86_64, arm64, etc.)
-echo "System architecture: $(uname -m)"
-
-# System uptime (human readable)
-echo "Uptime: $(uptime -p | sed 's/up //')"
+echo "Architecture: $(uname -m)"
 
 # Date & Time
-echo "Date: $(date +"%d-%m-%Y")"
+echo "Date: $(date +"%A, %d %B %Y")"
 echo "Time: $(date +"%H:%M:%S")"
+echo "Timezone: $(date +"%Z %z")"
+
+# Uptime and Load
+echo "Uptime: $(uptime -p | sed 's/up //')"
+echo "Load Average: $(cat /proc/loadavg | awk '{print $1", "$2", "$3}')"
+
+# Processes and Users
+echo "Logged Users: $(who | wc -l)"
+echo "Total Processes: $(ps aux | wc -l)"
+
+# Installed Packages
+if command -v dpkg >/dev/null; then
+    echo "Packages (dpkg): $(dpkg-query -f '.\n' -W | wc -l)"
+elif command -v rpm >/dev/null; then
+    echo "Packages (rpm): $(rpm -qa | wc -l)"
+elif command -v pacman >/dev/null; then
+    echo "Packages (pacman): $(pacman -Q | wc -l)"
+fi
 
 echo
+echo "|| HARDWARE & RESOURCE INFORMATION ||"
+echo "-------------------------------------"
 
-# ===============================
-# HARDWARE INFORMATION
-# ===============================
-echo "|| HARDWARE INFORMATION ||"
+# CPU
+echo "CPU Model: $(lscpu | grep "Model name" | sed 's/.*: *//')"
+echo "CPU Cores: $(nproc)"
+echo "CPU Max Freq: $(lscpu | grep "CPU max MHz" | sed 's/.*: *//' 2>/dev/null || echo "N/A")"
 
-# CPU model name
-echo "CPU model: $(lscpu | grep "Model name" | sed 's/.*: *//')"
-
-# Total CPU threads
-echo "CPU threads: $(lscpu | grep "^CPU(s):" | sed 's/.*: *//')"
-
-# CPU cores per socket
-echo "CPU cores: $(lscpu | grep "Core(s) per socket" | sed 's/.*: *//')"
-
-# CPU frequency (max)
-echo "CPU max MHz: $(lscpu | grep "CPU max MHz" | sed 's/.*: *//')"
-
-# ===============================
-# MEMORY INFORMATION
-# ===============================
-echo
-echo "|| MEMORY INFORMATION ||"
-
-# Total RAM
+# Memory
 echo "Total RAM: $(free -h | awk '/Mem:/ {print $2}')"
-
-# Used RAM
 echo "Used RAM: $(free -h | awk '/Mem:/ {print $3}')"
-
-# Free RAM
 echo "Free RAM: $(free -h | awk '/Mem:/ {print $4}')"
+echo "Swap Total: $(free -h | awk '/Swap:/ {print $2}')"
+echo "Swap Used: $(free -h | awk '/Swap:/ {print $3}')"
 
-# Swap total
-echo "Swap total: $(free -h | awk '/Swap:/ {print $2}')"
+# Storage
+echo "Root Size: $(df -h / | awk 'NR==2 {print $2}')"
+echo "Root Used: $(df -h / | awk 'NR==2 {print $3}')"
+echo "Root Available: $(df -h / | awk 'NR==2 {print $4}')"
+echo "Storage Usage (%): $(df -h / | awk 'NR==2 {print $5}')"
 
-# ===============================
-# STORAGE INFORMATION
-# ===============================
-echo
-echo "|| STORAGE INFORMATION ||"
+# Graphics
+echo "GPU Base: $(lspci 2>/dev/null | grep -i 'vga\|3d\|display' | sed 's/.*: //' | head -n 1)"
+if command -v xrandr >/dev/null && [ -n "$DISPLAY" ]; then
+    echo "Resolution: $(xrandr | grep '\*' | awk '{print $1}' | head -n 1)"
+fi
 
-# Root partition size
-echo "Root size: $(df -h / | awk 'NR==2 {print $2}')"
-
-# Root used space
-echo "Root used: $(df -h / | awk 'NR==2 {print $3}')"
-
-# Root available space
-echo "Root available: $(df -h / | awk 'NR==2 {print $4}')"
-
-# ===============================
-# GPU INFORMATION
-# ===============================
-echo
-echo "|| GRAPHICS INFORMATION ||"
-
-# GPU model (works on most systems)
-echo "GPU: $(lspci | grep -i 'vga\|3d' | sed 's/.*: //')"
-
-# ===============================
-# NETWORK INFORMATION
-# ===============================
 echo
 echo "|| NETWORK INFORMATION ||"
+echo "-------------------------"
 
-# Host IP address
-echo "Local IP: $(hostname -I | awk '{print $1}')"
+# Network
+echo "Local IP (Primary): $(hostname -I | awk '{print $1}')"
+echo "Gateway: $(ip route 2>/dev/null | grep default | awk '{print $3}' | head -n 1)"
 
-# Default gateway
-echo "Gateway: $(ip route | grep default | awk '{print $3}')"
+# Mac address
+interface=$(ip route 2>/dev/null | grep default | awk '{print $5}' | head -n 1)
+if [ -n "$interface" ]; then
+    mac=$(ip link show "$interface" | grep link/ether | awk '{print $2}')
+    if [ -n "$mac" ]; then
+        echo "MAC Address ($interface): $mac"
+    fi
+fi
+echo
