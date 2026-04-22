@@ -1,58 +1,64 @@
 #!/bin/bash
 
-# ===== Colors =====
-CYAN='\033[1;36m'
-GREEN='\033[1;32m'
+# Improved CPU Info Script (Colorful & Premium Version)
+
+# ===== Colors & Styling =====
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-MAGENTA='\033[1;35m'
-BLUE='\033[1;34m'
-RED='\033[1;31m'
+MAGENTA='\033[0;35m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
 BOLD='\033[1m'
+UNDERLINE='\033[4m'
 RESET='\033[0m'
 
-echo -e "\n${BOLD}${MAGENTA}🔥 CPU ADVANCED INFORMATION 🔥${RESET}\n"
+# Gather all info once to optimize
+CPU_DATA=$(lscpu)
 
-# ===== CPU BASIC INFO =====
-echo -e "${BOLD}${BLUE}--- BASIC INFO ---${RESET}"
-echo -e "${CYAN}Model Name:${RESET} ${GREEN}$(lscpu | grep "Model name" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Vendor ID:${RESET} ${GREEN}$(lscpu | grep "Vendor ID" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Architecture:${RESET} ${GREEN}$(lscpu | grep "Architecture" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Byte Order:${RESET} ${GREEN}$(lscpu | grep "Byte Order" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}BogoMIPS:${RESET} ${GREEN}$(lscpu | grep "BogoMIPS" | sed 's/.*: *//')${RESET}"
+get_val() {
+    local val=$(echo "$CPU_DATA" | grep -i "^$1" | sed 's/.*: *//' | head -n 1)
+    echo "${val:-N/A}"
+}
+
+# Header
+echo -e "\n${BOLD}${MAGENTA}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${RESET}"
+echo -e "${BOLD}${MAGENTA}┃${RESET}   ${BOLD}${YELLOW}🔥  ADVANCED CPU SYSTEM REPORT  🔥${RESET}                  ${BOLD}${MAGENTA}┃${RESET}"
+echo -e "${BOLD}${MAGENTA}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${RESET}\n"
+
+# ===== BASIC INFO =====
+echo -e "${BOLD}${BLUE}󰻠 BASIC IDENTIFICATION${RESET}"
+echo -e "  ${CYAN}Model Name    :${RESET} ${GREEN}$(get_val "Model name")${RESET}"
+echo -e "  ${CYAN}Vendor ID     :${RESET} ${GREEN}$(get_val "Vendor ID")${RESET}"
+echo -e "  ${CYAN}Architecture  :${RESET} ${GREEN}$(get_val "Architecture")${RESET}"
+echo -e "  ${CYAN}BogoMIPS      :${RESET} ${GREEN}$(get_val "BogoMIPS")${RESET}"
 echo
 
-# ===== CPU TOPOLOGY =====
-echo -e "${BOLD}${BLUE}--- TOPOLOGY ---${RESET}"
-echo -e "${CYAN}CPU(s) / Threads:${RESET} ${YELLOW}$(lscpu | grep "^CPU(s):" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Core(s) per socket:${RESET} ${YELLOW}$(lscpu | grep "Core(s) per socket" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Thread(s) per core:${RESET} ${YELLOW}$(lscpu | grep "Thread(s) per core" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Socket(s):${RESET} ${YELLOW}$(lscpu | grep "^Socket(s):" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}NUMA node(s):${RESET} ${YELLOW}$(lscpu | grep "NUMA node(s):" | sed 's/.*: *//')${RESET}"
+# ===== TOPOLOGY =====
+echo -e "${BOLD}${BLUE}󰓅 ARCHITECTURE & TOPOLOGY${RESET}"
+echo -e "  ${CYAN}Threads       :${RESET} ${YELLOW}$(get_val "CPU(s):")${RESET}"
+echo -e "  ${CYAN}Cores/Socket  :${RESET} ${YELLOW}$(get_val "Core(s) per socket")${RESET}"
+echo -e "  ${CYAN}Threads/Core  :${RESET} ${YELLOW}$(get_val "Thread(s) per core")${RESET}"
+echo -e "  ${CYAN}Sockets       :${RESET} ${YELLOW}$(get_val "Socket(s):")${RESET}"
 echo
 
-# ===== CPU FEATURES =====
-echo -e "${BOLD}${BLUE}--- FEATURES ---${RESET}"
-echo -e "${CYAN}Virtualization:${RESET} ${MAGENTA}$(lscpu | grep "Virtualization:" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Virtualization Type:${RESET} ${MAGENTA}$(lscpu | grep "Virtualization type" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Stepping:${RESET} ${MAGENTA}$(lscpu | grep "Stepping:" | sed 's/.*: *//')${RESET}"
+# ===== FREQUENCY & CACHE =====
+echo -e "${BOLD}${BLUE}󰍛 PERFORMANCE & CACHE${RESET}"
+echo -e "  ${CYAN}Current Speed :${RESET} ${RED}$(get_val "CPU MHz") MHz${RESET}"
+echo -e "  ${CYAN}Max Speed     :${RESET} ${RED}$(get_val "CPU max MHz") MHz${RESET}"
+echo -e "  ${CYAN}L1d/L1i Cache :${RESET} ${GREEN}$(get_val "L1d cache") / $(get_val "L1i cache")${RESET}"
+echo -e "  ${CYAN}L2/L3 Cache   :${RESET} ${GREEN}$(get_val "L2 cache") / $(get_val "L3 cache")${RESET}"
 echo
 
-# ===== CPU FREQUENCY =====
-echo -e "${BOLD}${BLUE}--- FREQUENCY ---${RESET}"
-echo -e "${CYAN}Current CPU MHz:${RESET} ${RED}$(lscpu | grep "^CPU MHz" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Max CPU MHz:${RESET} ${RED}$(lscpu | grep "CPU max MHz" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}Min CPU MHz:${RESET} ${RED}$(lscpu | grep "CPU min MHz" | sed 's/.*: *//')${RESET}"
+# ===== VIRTUALIZATION =====
+echo -e "${BOLD}${BLUE}󰠱 VIRTUALIZATION${RESET}"
+echo -e "  ${CYAN}Support       :${RESET} ${MAGENTA}$(get_val "Virtualization:")${RESET}"
+echo -e "  ${CYAN}Type          :${RESET} ${MAGENTA}$(get_val "Virtualization type")${RESET}"
 echo
 
-# ===== CACHE =====
-echo -e "${BOLD}${BLUE}--- CACHE ---${RESET}"
-echo -e "${CYAN}L1d Cache:${RESET} ${GREEN}$(lscpu | grep "L1d" | head -n 1 | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}L1i Cache:${RESET} ${GREEN}$(lscpu | grep "L1i" | head -n 1 | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}L2 Cache:${RESET} ${GREEN}$(lscpu | grep "L2 cache" | sed 's/.*: *//')${RESET}"
-echo -e "${CYAN}L3 Cache:${RESET} ${GREEN}$(lscpu | grep "L3 cache" | sed 's/.*: *//')${RESET}"
-echo
+# ===== FLAGS =====
+echo -e "${BOLD}${BLUE}󰓆 FEATURES & FLAGS${RESET}"
+FLAGS=$(get_val "Flags")
+echo -e "  ${CYAN}CPU Flags     :${RESET} ${YELLOW}${FLAGS:0:80}...${RESET}"
 
-# ===== FLAGS (short preview) =====
-echo -e "${BOLD}${BLUE}--- FLAGS ---${RESET}"
-echo -e "${CYAN}CPU Flags:${RESET} ${YELLOW}$(lscpu | grep "^Flags:" | sed 's/.*: *//' | cut -c1-100)...${RESET}"
-echo
+echo -e "\n${BOLD}${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"

@@ -1,46 +1,46 @@
 #!/bin/bash
 
-echo "|| CPU information ||"
-echo
+# Improved CPU Info Script (Clean Version)
 
-# general info
-echo "Model name: $(lscpu | grep "Model name" | sed 's/.*: *//')"
-echo "Vendor ID: $(lscpu | grep "Vendor ID" | sed 's/.*: *//')"
-echo "Architecture: $(lscpu | grep "Architecture" | sed 's/.*: *//')"
-echo "Byte Order: $(lscpu | grep "Byte Order" | sed 's/.*: *//')"
-echo "BogoMIPS: $(lscpu | grep "BogoMIPS" | sed 's/.*: *//')"
+# Gather all info once to optimize
+CPU_DATA=$(lscpu)
 
-echo
-echo "|| CPU topology ||"
-echo
+get_val() {
+    echo "$CPU_DATA" | grep -i "^$1" | sed 's/.*: *//' | head -n 1
+}
 
-# topology
-echo "CPU threads: $(lscpu | grep "^CPU(s):" | sed 's/.*: *//')"
-echo "CPU cores per socket: $(lscpu | grep "Core(s) per socket" | sed 's/.*: *//')"
-echo "Threads per core: $(lscpu | grep "Thread(s) per core" | sed 's/.*: *//')"
-echo "Sockets: $(lscpu | grep "^Socket(s):" | sed 's/.*: *//')"
-echo "NUMA node(s): $(lscpu | grep "NUMA node(s):" | sed 's/.*: *//')"
+echo "========================================"
+echo "          CPU INFORMATION"
+echo "========================================"
 
-echo
-echo "|| Virtualization & Features ||"
-echo
+echo "Model name:           $(get_val "Model name")"
+echo "Vendor ID:            $(get_val "Vendor ID")"
+echo "Architecture:         $(get_val "Architecture")"
+echo "Byte Order:           $(get_val "Byte Order")"
+echo "BogoMIPS:             $(get_val "BogoMIPS")"
 
-# virtualization and features
-echo "Virtualization: $(lscpu | grep "Virtualization:" | sed 's/.*: *//')"
-echo "Virtualization type: $(lscpu | grep "Virtualization type" | sed 's/.*: *//')"
-echo "Stepping: $(lscpu | grep "Stepping:" | sed 's/.*: *//')"
+echo -e "\n--- Topology ---"
+echo "CPU threads:          $(get_val "CPU(s):")"
+echo "CPU cores per socket: $(get_val "Core(s) per socket")"
+echo "Threads per core:     $(get_val "Thread(s) per core")"
+echo "Sockets:              $(get_val "Socket(s):")"
+echo "NUMA node(s):         $(get_val "NUMA node(s):")"
 
-echo
-echo "|| Clocks & Caches ||"
-echo
+echo -e "\n--- Virtualization & Features ---"
+echo "Virtualization:       $(get_val "Virtualization:")"
+echo "Virtualization type:  $(get_val "Virtualization type")"
+echo "Stepping:             $(get_val "Stepping:")"
 
-# frequency
-echo "Current CPU MHz: $(lscpu | grep "^CPU MHz" | sed 's/.*: *//')"
-echo "Max CPU MHz: $(lscpu | grep "CPU max MHz" | sed 's/.*: *//')"
-echo "Min CPU MHz: $(lscpu | grep "CPU min MHz" | sed 's/.*: *//')"
+echo -e "\n--- Clocks & Caches ---"
+echo "Current CPU MHz:      $(get_val "CPU MHz")"
+echo "Max CPU MHz:          $(get_val "CPU max MHz")"
+echo "Min CPU MHz:          $(get_val "CPU min MHz")"
 
-# cache
-echo "L1d Cache: $(lscpu | grep "L1d" | head -n 1 | sed 's/.*: *//')"
-echo "L1i Cache: $(lscpu | grep "L1i" | head -n 1 | sed 's/.*: *//')"
-echo "L2 Cache: $(lscpu | grep "L2 cache" | sed 's/.*: *//')"
-echo "L3 Cache: $(lscpu | grep "L3 cache" | sed 's/.*: *//')"
+echo "L1d Cache:            $(get_val "L1d cache")"
+echo "L1i Cache:            $(get_val "L1i cache")"
+echo "L2 Cache:             $(get_val "L2 cache")"
+echo "L3 Cache:             $(get_val "L3 cache")"
+
+echo -e "\n--- Flags ---"
+echo "CPU Flags:            $(get_val "Flags")" | cut -c1-100 | sed 's/$/.../'
+echo "========================================"
