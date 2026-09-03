@@ -1,0 +1,10 @@
+Sep 03 20:01 server sshd[1001]: Failed password for root from 192.168.1.50 port 42111 ssh2
+Sep 03 20:02 server sshd[1002]: Failed password for admin from 192.168.1.50 port 42112 ssh2
+Sep 03 20:03 server sshd[1003]: Failed password for root from 10.10.10.23 port 42113 ssh2
+Sep 03 20:04 server sshd[1004]: Accepted password for amit from 192.168.1.20 port 42114 ssh2
+Sep 03 20:05 server sshd[1005]: Failed password for root from 192.168.1.50 port 42115 ssh2
+Sep 03 20:06 server sshd[1006]: Failed password for test from 10.10.10.23 port 42116 ssh2
+Sep 03 20:07 server sshd[1007]: Failed password for root from 192.168.1.50 port 42117 ssh2
+Sep 03 20:08 server sshd[1008]: Failed password for admin from 172.16.5.8 port 42118 ssh2
+Sep 03 20:09 server sshd[1009]: Failed password for root from 192.168.1.50 port 42119 ssh2
+Sep 03 20:10 server sshd[1010]: Failed password for root from 192.168.1.50 port 42120 ssh2
